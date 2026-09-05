@@ -5,10 +5,13 @@ import { Chess } from "chess.js";
 function ChessBoared(){
      const [game,setGame]= useState(new Chess());
      const [style,setStyle]= useState();
+     const [legalMoves,setLegalMoves] =useState([]);
+     const [firstClick,setFirstClick] =useState();
+     //const [secClick,setSecClick] =useState();
 
 
 
-     function handlePiecedrop({sourceSquare,targetSquare}){
+    function handlePiecedrop({sourceSquare,targetSquare}){
         try{
                   game.move({
             from:sourceSquare,
@@ -16,6 +19,7 @@ function ChessBoared(){
         } );
 
         setGame(new Chess(game.fen()));
+        setStyle({})
         return true;
 
         }catch{
@@ -23,20 +27,61 @@ function ChessBoared(){
         }
 
     }
-     function showLegalMoves({square}){
+    
 
-       const moves = game.moves({
+
+
+
+     function getLegalMoves({square}){
+        setFirstClick(square)
+        const moves = (game.moves({
             square:square,
             verbose:true
-        }).map(move => move.to )
-       setStyle(moves.reduce((acc,legalmove)=>{
-         acc[legalmove] = {background: "green"}
-        
-         return acc;
+        }))
+        setLegalMoves(moves)
+        styleLegalMoves(moves)
 
-        },{}))
-        
+   }
 
+   function handleSquareClick({square}){
+
+    if(legalMoves.some(legalmoves => legalmoves.to === square )){
+        game.move(
+    {
+        from:firstClick.toString(),
+        to:square
+
+    }
+)
+setGame(new Chess(game.fen()))
+    setStyle({})
+  
+    }
+
+
+
+   }
+
+
+
+   function styleLegalMoves(legalMoves){
+    console.log(legalMoves);
+
+  setStyle(legalMoves.reduce((acc,legalMove) =>{
+
+if (legalMove.captured !== undefined) {
+    acc[legalMove.to] = {
+        background: "radial-gradient(circle, transparent 55%, rgba(0, 0, 0, 0.35) 57%, rgba(0, 0, 0, 0.35) 64%, transparent 66%)"
+    }
+}else{
+        acc[legalMove.to] = {
+        background: "radial-gradient(circle, rgba(0, 0, 0, 0.35) 0%, rgba(0, 0, 0, 0.35) 18%, transparent 20%)"
+    }
+}
+
+
+    return acc;
+  },{}))
    }
 
         
@@ -50,8 +95,11 @@ function ChessBoared(){
          options={{
             position: game.fen(),
             onPieceDrop: handlePiecedrop,
-            onPieceClick: showLegalMoves,
-            squareStyles: style
+            onSquareClick: handleSquareClick,
+            onPieceClick: getLegalMoves,
+            onPieceDrag:getLegalMoves,
+            squareStyles: style,
+            
          }
          }/>
         </>
