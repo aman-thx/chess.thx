@@ -20,6 +20,8 @@ function ChessBoared(){
 
         setGame(new Chess(game.fen()));
         setStyle({})
+        setLegalMoves([])
+        setFirstClick(undefined)
         return true;
 
         }catch{
@@ -45,6 +47,10 @@ function ChessBoared(){
 
    function handleSquareClick({square}){
 
+    console.log("clicked:", square);
+console.log("legal moves:", legalMoves);
+console.log("first click:", firstClick);
+
     if(legalMoves.some(legalmoves => legalmoves.to === square )){
         game.move(
     {
@@ -55,9 +61,13 @@ function ChessBoared(){
 )
 setGame(new Chess(game.fen()))
     setStyle({})
+    setLegalMoves([])
+    setFirstClick(undefined)
   
+    }else{
+    setStyle({})
+    setLegalMoves([])
     }
-
 
 
    }
