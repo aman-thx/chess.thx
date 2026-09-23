@@ -7,11 +7,37 @@ function ChessBoared(){
      const [style,setStyle]= useState();
      const [legalMoves,setLegalMoves] =useState([]);
      const [firstClick,setFirstClick] =useState();
+     const [turn,setTurn]= useState("w");
+     const [gemaeStarted, setGameStarted] = useState(false);
+     const [whiteTime, setWhiteTime] = useState(300);
+     const [blackTime, setBlackTime] = useState(300);
+
      //const [secClick,setSecClick] =useState();
 
 
 
+
+    function startGame(){
+
+        setGameStarted(true);
+        setTurn('w');
+
+    }
+
+    function formatTime(time){
+    const minutes = Math.floor(time / 60);
+    const seconds = time % 60;
+
+    return `${minutes}:${seconds.toString().padStart(2, "0")}`;
+}
+
+
     function handlePiecedrop({sourceSquare,targetSquare}){
+
+        if (!gemaeStarted){
+            return false;
+        }
+
         try{
                   game.move({
             from:sourceSquare,
@@ -35,6 +61,10 @@ function ChessBoared(){
 
 
      function getLegalMoves({square}){
+
+        if(!gemaeStarted){
+            return false;
+        }
         setFirstClick(square)
         const moves = (game.moves({
             square:square,
@@ -46,6 +76,11 @@ function ChessBoared(){
    }
 
    function handleSquareClick({square}){
+  
+     if (!gemaeStarted){
+        return false;
+    }
+   
 
     console.log("clicked:", square);
 console.log("legal moves:", legalMoves);
@@ -64,11 +99,11 @@ setGame(new Chess(game.fen()))
     setLegalMoves([])
     setFirstClick(undefined)
   
-    }else{
-    setStyle({})
-    setLegalMoves([])
+    }else if(firstClick !== undefined){
+        setStyle({})
+        setLegalMoves([])
+        setFirstClick(undefined)
     }
-
 
    }
 
@@ -100,7 +135,8 @@ if (legalMove.captured !== undefined) {
 
 
     return(
-        <>
+        <> 
+        <div>Black: {formatTime(blackTime)}</div>
         <Chessboard
          options={{
             position: game.fen(),
@@ -108,10 +144,13 @@ if (legalMove.captured !== undefined) {
             onSquareClick: handleSquareClick,
             onPieceClick: getLegalMoves,
             onPieceDrag:getLegalMoves,
-            squareStyles: style,
-            
+            squareStyles: style,  
          }
          }/>
+         <div>White: {formatTime(whiteTime)}</div>
+         <button onClick={startGame}>
+            start game
+         </button>
         </>
     )
 }
